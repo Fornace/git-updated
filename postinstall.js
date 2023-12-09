@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('path'); // Corrected require statement
+const path = require('path');
 const execSync = require('child_process').execSync;
 
 function logToFile(message) {
@@ -19,17 +19,18 @@ function modifyPackageJson() {
         execSync('npm init -y', { cwd: projectRoot });
     }
 
-    // Check if Husky is installed
-    try {
-        execSync('npm list husky', { cwd: projectRoot, stdio: 'ignore' });
-        logToFile('git-updated: Husky is already installed.');
-    } catch (error) {
-        logToFile('git-updated: Husky not found. Installing Husky.');
+    let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    // Check if Husky is installed and add it to devDependencies if not
+    if (!packageJson.devDependencies || !packageJson.devDependencies.husky) {
+        logToFile('git-updated: Husky not found in devDependencies. Installing Husky.');
         execSync('npm add husky --save-dev', { cwd: projectRoot });
+        packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')); // Re-read package.json after modification
+    } else {
+        logToFile('git-updated: Husky is already listed in devDependencies.');
     }
 
     // Configure Husky hooks
-    let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     packageJson.husky = packageJson.husky || {};
     packageJson.husky.hooks = packageJson.husky.hooks || {};
     const prePushCommand = 'node ./node_modules/git-updated/git-updated.js';
