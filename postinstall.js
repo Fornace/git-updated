@@ -2,35 +2,37 @@ const fs = require('fs');
 const path = require('path');
 const execSync = require('child_process').execSync;
 
-function modifyPackageJson() {
-    console.log('git-updated: Starting postinstall script.');
+// Logging function to append messages to a log file
+function logToFile(message) {
+    const logFilePath = path.join(__dirname, 'git-updated-install.log');
+    fs.appendFileSync(logFilePath, message + '\n');
+}
 
-    // Determine the project root directory
-    const projectRoot = '../../';
-    console.log(`git-updated: Project root determined as: ${projectRoot}`);
+function modifyPackageJson() {
+    logToFile('git-updated: Starting postinstall script.');
+
+    const projectRoot = process.env.INIT_CWD || process.cwd();
+    logToFile(`git-updated: Project root determined as: ${projectRoot}`);
 
     const packageJsonPath = path.join(projectRoot, 'package.json');
     
     if (!fs.existsSync(packageJsonPath)) {
-        console.log('git-updated: No package.json found. Initializing with npm init -y.');
+        logToFile('git-updated: No package.json found. Initializing with npm init -y.');
         execSync('npm init -y', { cwd: projectRoot });
     }
 
-    console.log('git-updated: Reading package.json.');
-    const packageJson = require(packageJsonPath);
+    logToFile('git-updated: Reading package.json.');
+    let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
     // Ensure devDependencies exist
-    if (!packageJson.devDependencies) {
-        console.log('git-updated: Initializing devDependencies.');
-        packageJson.devDependencies = {};
-    }
+    packageJson.devDependencies = packageJson.devDependencies || {};
 
     // Setup Husky
     if (!packageJson.devDependencies.husky) {
-        console.log('git-updated: Adding Husky to devDependencies.');
+        logToFile('git-updated: Adding Husky to devDependencies.');
         packageJson.devDependencies.husky = '^7.0.0';
     } else {
-        console.log('git-updated: Husky already exists in devDependencies.');
+        logToFile('git-updated: Husky already exists in devDependencies.');
     }
 
     // Configure Husky hooks
@@ -39,21 +41,21 @@ function modifyPackageJson() {
     const prePushCommand = 'node ./node_modules/git-updated/git-updated.js';
 
     if (packageJson.husky.hooks['pre-push']) {
-        console.log('git-updated: Existing pre-push hook found.');
+        logToFile('git-updated: Existing pre-push hook found.');
         if (!packageJson.husky.hooks['pre-push'].includes(prePushCommand)) {
-            console.log('git-updated: Appending to existing pre-push hook.');
+            logToFile('git-updated: Appending to existing pre-push hook.');
             packageJson.husky.hooks['pre-push'] += ' && ' + prePushCommand;
         } else {
-            console.log('git-updated: git-updated command already present in pre-push hook.');
+            logToFile('git-updated: git-updated command already present in pre-push hook.');
         }
     } else {
-        console.log('git-updated: No pre-push hook found. Creating one.');
+        logToFile('git-updated: No pre-push hook found. Creating one.');
         packageJson.husky.hooks['pre-push'] = prePushCommand;
     }
 
     // Write changes to package.json
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-    console.log('git-updated: Husky configuration updated in package.json.');
+    logToFile('git-updated: Husky configuration updated in package.json.');
 }
 
 modifyPackageJson();
