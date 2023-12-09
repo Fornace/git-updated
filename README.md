@@ -1,4 +1,4 @@
-# Git Updated
+# GIT UPDATED
 ![GitHub](https://img.shields.io/github/license/Fornace/git-updated)
 ![npm](https://img.shields.io/npm/v/git-updated)
 
