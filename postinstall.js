@@ -4,11 +4,27 @@ const path = require('path');
 function modifyPackageJson() {
     const projectRoot = path.join(process.cwd());
     const packageJsonPath = path.join(projectRoot, 'package.json');
-    const packageJson = require(packageJsonPath);
+    let packageJson;
 
-    // Setup Husky if not already set up
-    if (!packageJson.devDependencies || !packageJson.devDependencies.husky) {
-        packageJson.devDependencies = packageJson.devDependencies || {};
+    // Check if package.json exists
+    if (fs.existsSync(packageJsonPath)) {
+        packageJson = require(packageJsonPath);
+    } else {
+        // Initialize a basic package.json structure if it doesn't exist
+        console.log('No package.json found. Initializing a basic structure.');
+        packageJson = {
+            name: 'your-project',
+            version: '1.0.0',
+            scripts: {},
+            devDependencies: {}
+        };
+    }
+
+    // Ensure devDependencies exist
+    packageJson.devDependencies = packageJson.devDependencies || {};
+
+    // Setup Husky
+    if (!packageJson.devDependencies.husky) {
         packageJson.devDependencies.husky = '^7.0.0';
     }
 
