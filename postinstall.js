@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('child_process');
+const path = require('path'); // Corrected require statement
 const execSync = require('child_process').execSync;
 
 function logToFile(message) {
