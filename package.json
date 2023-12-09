@@ -1,0 +1,19 @@
+{
+  "name": "git-updated",
+  "version": "1.0.0",
+  "description": "Automatically updates a JSON file with the last modified dates of files in a Git repo.",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
+  "dependencies": {
+    "simple-git": "^2.46.0",
+    "husky": "^7.0.0"
+  },
+  "bin": {
+    "git-updated": "./index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
