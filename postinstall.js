@@ -1,25 +1,36 @@
 const fs = require('fs');
 const path = require('path');
 
-const packageJsonPath = path.join(process.cwd(), 'package.json');
-const packageJson = require(packageJsonPath);
+function modifyPackageJson() {
+    const projectRoot = path.join(process.cwd());
+    const packageJsonPath = path.join(projectRoot, 'package.json');
+    const packageJson = require(packageJsonPath);
 
-function setupHusky() {
-    const huskyConfig = packageJson['husky'] || {};
-    const hooks = huskyConfig['hooks'] || {};
+    // Setup Husky if not already set up
+    if (!packageJson.devDependencies || !packageJson.devDependencies.husky) {
+        packageJson.devDependencies = packageJson.devDependencies || {};
+        packageJson.devDependencies.husky = '^7.0.0';
+    }
 
-    // Add or modify pre-push hook
-    const prePushScript = 'node ./node_modules/git-updated/git-updated.js';
-    hooks['pre-push'] = hooks['pre-push'] ? `${hooks['pre-push']} && ${prePushScript}` : prePushScript;
+    // Configure Husky hooks
+    packageJson.husky = packageJson.husky || {};
+    packageJson.husky.hooks = packageJson.husky.hooks || {};
+    const prePushCommand = 'node ./node_modules/git-updated/git-updated.js';
+    const existingPrePush = packageJson.husky.hooks['pre-push'];
 
-    // Update package.json
-    packageJson['husky'] = {...huskyConfig, hooks};
+    if (existingPrePush) {
+        // Append if there's an existing pre-push hook
+        if (!existingPrePush.includes(prePushCommand)) {
+            packageJson.husky.hooks['pre-push'] = existingPrePush + ' && ' + prePushCommand;
+        }
+    } else {
+        // Create a new pre-push hook
+        packageJson.husky.hooks['pre-push'] = prePushCommand;
+    }
+
+    // Write changes to package.json
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-    console.log('git-updated: Husky pre-push hook configured.');
+    console.log('git-updated: Husky configuration updated.');
 }
 
-if (fs.existsSync(packageJsonPath)) {
-    setupHusky();
-} else {
-    console.error('git-updated: No package.json found. Please ensure you are in the root directory of your project.');
-}
+modifyPackageJson();
