@@ -3,8 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 async function updateFileDates() {
+    const logFilePath = path.join(__dirname, 'git-updated.log');
+    const logToFile = (message) => fs.appendFileSync(logFilePath, message + '\n');
+
     try {
-        console.log('git-updated: Starting to update file dates.');
+        logToFile('git-updated: Starting to update file dates.');
 
         const git = simpleGit();
         const isRepo = await git.checkIsRepo();
@@ -13,10 +16,10 @@ async function updateFileDates() {
             throw new Error("Not a Git repository.");
         }
 
-        console.log('git-updated: Confirmed as a Git repository.');
+        logToFile('git-updated: Confirmed as a Git repository.');
 
         const repoRoot = await git.revparse(['--show-toplevel']);
-        console.log(`git-updated: Git repository root: ${repoRoot}`);
+        logToFile(`git-updated: Git repository root: ${repoRoot}`);
 
         const log = await git.log();
         const fileDates = {};
@@ -34,9 +37,11 @@ async function updateFileDates() {
         fs.mkdirSync(path.dirname(jsonFilePath), { recursive: true });
         fs.writeFileSync(jsonFilePath, JSON.stringify(fileDates, null, 2));
 
-        console.log(`git-updated: File dates updated in ${jsonFilePath}`);
+        logToFile(`git-updated: File dates updated in ${jsonFilePath}`);
     } catch (error) {
-        console.error('git-updated: Error updating file dates:', error);
+        const errorMessage = `git-updated: Error updating file dates: ${error}`;
+        console.error(errorMessage);
+        logToFile(errorMessage);
     }
 }
 
