@@ -6,7 +6,7 @@ function modifyPackageJson() {
     console.log('git-updated: Starting postinstall script.');
 
     // Determine the project root directory
-    const projectRoot = process.env.INIT_CWD || process.cwd();
+    const projectRoot = '../../';
     console.log(`git-updated: Project root determined as: ${projectRoot}`);
 
     const packageJsonPath = path.join(projectRoot, 'package.json');
