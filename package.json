@@ -1,6 +1,6 @@
 {
   "name": "git-updated",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Automatically updates a JSON file with the last modified dates of files in a Git repository.",
   "main": "updateFileDates.js",
   "scripts": {
@@ -21,6 +21,9 @@
   "license": "UNLICENSED",
   "dependencies": {
     "simple-git": "^2.46.0",
+    "husky": "^7.0.0"
+  },
+  "devDependencies": {
     "husky": "^7.0.0"
   }
 }
