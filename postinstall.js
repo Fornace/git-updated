@@ -2,16 +2,19 @@ const fs = require('fs');
 const path = require('path');
 
 function modifyPackageJson() {
+    console.log('git-updated: Starting postinstall script.');
+
     const projectRoot = path.join(process.cwd());
     const packageJsonPath = path.join(projectRoot, 'package.json');
     let packageJson;
 
     // Check if package.json exists
     if (fs.existsSync(packageJsonPath)) {
+        console.log('git-updated: Found package.json.');
         packageJson = require(packageJsonPath);
     } else {
         // Initialize a basic package.json structure if it doesn't exist
-        console.log('No package.json found. Initializing a basic structure.');
+        console.log('git-updated: No package.json found. Initializing a basic structure.');
         packageJson = {
             name: 'your-project',
             version: '1.0.0',
@@ -25,7 +28,10 @@ function modifyPackageJson() {
 
     // Setup Husky
     if (!packageJson.devDependencies.husky) {
+        console.log('git-updated: Adding Husky to devDependencies.');
         packageJson.devDependencies.husky = '^7.0.0';
+    } else {
+        console.log('git-updated: Husky is already in devDependencies.');
     }
 
     // Configure Husky hooks
@@ -35,12 +41,17 @@ function modifyPackageJson() {
     const existingPrePush = packageJson.husky.hooks['pre-push'];
 
     if (existingPrePush) {
+        console.log('git-updated: Existing pre-push hook found.');
         // Append if there's an existing pre-push hook
         if (!existingPrePush.includes(prePushCommand)) {
+            console.log('git-updated: Appending to existing pre-push hook.');
             packageJson.husky.hooks['pre-push'] = existingPrePush + ' && ' + prePushCommand;
+        } else {
+            console.log('git-updated: Command already present in pre-push hook.');
         }
     } else {
         // Create a new pre-push hook
+        console.log('git-updated: Creating a new pre-push hook.');
         packageJson.husky.hooks['pre-push'] = prePushCommand;
     }
 

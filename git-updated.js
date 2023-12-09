@@ -4,6 +4,8 @@ const path = require('path');
 
 async function updateFileDates() {
     try {
+        console.log('git-updated: Starting to update file dates.');
+
         const git = simpleGit();
         const isRepo = await git.checkIsRepo();
 
@@ -11,7 +13,11 @@ async function updateFileDates() {
             throw new Error("Not a Git repository.");
         }
 
+        console.log('git-updated: Confirmed as a Git repository.');
+
         const repoRoot = await git.revparse(['--show-toplevel']);
+        console.log(`git-updated: Git repository root: ${repoRoot}`);
+
         const log = await git.log();
         const fileDates = {};
 
@@ -28,7 +34,7 @@ async function updateFileDates() {
         fs.mkdirSync(path.dirname(jsonFilePath), { recursive: true });
         fs.writeFileSync(jsonFilePath, JSON.stringify(fileDates, null, 2));
 
-        console.log('git-updated: File dates updated in .git-updated/file_dates.json');
+        console.log(`git-updated: File dates updated in ${jsonFilePath}`);
     } catch (error) {
         console.error('git-updated: Error updating file dates:', error);
     }
