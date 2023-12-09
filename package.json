@@ -2,7 +2,7 @@
   "name": "git-updated",
   "version": "1.0.1",
   "description": "Automatically updates a JSON file with the last modified dates of files in a Git repository.",
-  "main": "index.js",
+  "main": "updateFileDates.js",
   "scripts": {
     "postinstall": "node postinstall.js"
   },
