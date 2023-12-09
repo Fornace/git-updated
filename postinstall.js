@@ -7,6 +7,18 @@ function logToFile(message) {
     fs.appendFileSync(logFilePath, new Date().toISOString() + ' - ' + message + '\n');
 }
 
+function findProjectRoot(currentDir) {
+    let parentDir = path.resolve(currentDir, '../..');
+    while (parentDir !== currentDir) {
+        if (fs.existsSync(path.join(parentDir, 'package.json'))) {
+            return parentDir;
+        }
+        currentDir = parentDir;
+        parentDir = path.resolve(currentDir, '..');
+    }
+    throw new Error('No package.json found. Please ensure you are inside a Node.js project. Run "npm init y" for a quick fix');
+}
+
 function execCommand(command, options) {
     return new Promise((resolve, reject) => {
         exec(command, options, (error, stdout, stderr) => {
@@ -24,12 +36,14 @@ async function modifyPackageJson() {
     logToFile('git-updated: Starting postinstall script.');
 
     try {
-        const projectRoot = process.cwd();
+        const currentDir = __dirname;
+        const projectRoot = findProjectRoot(currentDir);
         logToFile(`git-updated: Project root determined as: ${projectRoot}`);
 
         const packageJsonPath = path.join(projectRoot, 'package.json');
+
         if (!fs.existsSync(packageJsonPath)) {
-            logToFile('git-updated: Initializing npm project with npm init -y.');
+            logToFile('git-updated: No package.json found. Initializing npm project with npm init -y.');
             await execCommand('npm init -y', { cwd: projectRoot });
         }
 
@@ -38,7 +52,7 @@ async function modifyPackageJson() {
         // Check if Husky is installed
         let huskyInstalled;
         try {
-            require.resolve('husky');
+            require.resolve('husky', { paths: [projectRoot] });
             huskyInstalled = true;
         } catch (e) {
             huskyInstalled = false;
