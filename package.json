@@ -1,6 +1,6 @@
 {
   "name": "git-updated",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Automatically updates a JSON file with the last modified dates of files in a Git repository.",
   "main": "git-updated.js",
   "scripts": {
