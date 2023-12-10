@@ -17,6 +17,7 @@
 Install `git-updated` using npm:
 
 ```bash
+npm install simple-git-hooks
 npm install git-updated
 ```
 
