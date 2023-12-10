@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const setHooks = require('simple-git-hooks');
-
+console.warn("post-install script")
 const hooks = {
   "post-commit": "node ./node_modules/git-updated/updateJson.js"
 };

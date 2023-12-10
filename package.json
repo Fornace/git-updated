@@ -20,9 +20,6 @@
   ],
   "author": "@ffrappo",
   "license": "UNLICENSED",
-  "peerDependencies": {
-    "simple-git-hooks": "^2.4.0"
-  },
   "dependencies": {
     "simple-git-hooks": "^2.4.0",
     "node-json-db": "^1.3.0"
