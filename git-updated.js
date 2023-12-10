@@ -3,7 +3,7 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const path = require('path');
 
-const dbFilePath = path.join(__dirname, 'gitUpdatedDB.json');
+const dbFilePath = path.join(__dirname, 'gitUpdatedList.json');
 
 function updateDatabaseWithFileChanges() {
   const filesChanged = execSync('git diff --name-only HEAD HEAD~1').toString().trim().split('\n');

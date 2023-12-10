@@ -1,26 +1,36 @@
 // setup.js
+const { error } = require('console');
 const fs = require('fs');
 const path = require('path');
 
-function findGitRoot(currentDir) {
-  if (fs.existsSync(path.join(currentDir, '.git'))) {
-    return currentDir;
-  }
-  const parentDir = path.resolve(currentDir, '..');
-  if (parentDir === currentDir) {
-    throw new Error('Unable to find .git directory');
-  }
-  return findGitRoot(parentDir);
-}
+let maxRecursive = 0;
 
-const projectRoot = findGitRoot(__dirname);
+function findGitRoot(currentDir) {
+  if (maxRecursive-- < 0) {
+    throw new Error(`No git directory found up to ${maxRecursive} levels up`)
+  };
+  const gitDir = path.join(currentDir, '.git')
+  if (fs.existsSync(gitDir)) {
+    return gitDir;
+  } else {
+    return findGitRoot(path.join(currentDir, '..'));
+  }
+}
+const projectDir = process.env.INIT_CWD;
+
+const gitRoot = findGitRoot(projectDir);
+
+console.log({gitRoot})
+
 const hookFileName = 'pre-commit-git-updated';
 const hookScript = `#!/bin/sh
 # Hook created by git-updated
-node ${path.join(__dirname, 'git-updated.js')} && git add ${path.join(projectRoot, 'gitUpdatedDB.json')}
+node ${path.join(__dirname, 'git-updated.js')} && git add ${path.join(__dirname, 'gitUpdatedList.json')}
 `;
 
-const hooksDir = path.join(projectRoot, '.git', 'hooks');
+console.log('Hook Created: ' , hookScript)
+
+const hooksDir = path.join(gitRoot, 'hooks');
 const hookPath = path.join(hooksDir, hookFileName);
 
 // Ensure .git/hooks directory exists
