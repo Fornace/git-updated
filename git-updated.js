@@ -1,19 +1,26 @@
 // git-updated.js
-const { JsonDB } = require('node-json-db');
-const { Config } = require('node-json-db/dist/lib/JsonDBConfig');
+const fs = require('fs');
 const { execSync } = require('child_process');
+const path = require('path');
 
-const db = new JsonDB(new Config("gitUpdatedDB", true, false, '/'));
+const dbFilePath = path.join(__dirname, 'gitUpdatedDB.json');
 
 function updateDatabaseWithFileChanges() {
   const filesChanged = execSync('git diff --name-only HEAD HEAD~1').toString().trim().split('\n');
   const timestamp = new Date().toISOString();
 
+  let db;
+  if (fs.existsSync(dbFilePath)) {
+    db = JSON.parse(fs.readFileSync(dbFilePath));
+  } else {
+    db = {};
+  }
+
   filesChanged.forEach(file => {
-    db.push(`/${file}`, { lastEdited: timestamp });
+    db[file] = { lastEdited: timestamp };
   });
 
-  db.save();
+  fs.writeFileSync(dbFilePath, JSON.stringify(db, null, 2));
 }
 
 updateDatabaseWithFileChanges();
