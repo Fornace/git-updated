@@ -13,7 +13,7 @@ function findGitRoot(currentDir) {
   return findGitRoot(parentDir);
 }
 
-const projectRoot = findGitRoot(__dirname);
+const projectRoot = findGitRoot(process.env.INIT_CWD);
 const hookFileName = 'pre-commit-git-updated';
 
 if (projectRoot) {
